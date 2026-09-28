@@ -31,5 +31,11 @@ jobs:
           SPORTBIT_USER: ${{ secrets.SPORTBIT_USER }}
           SPORTBIT_PASS: ${{ secrets.SPORTBIT_PASS }}
           GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-          CHECK_DATE: ${{ github.event.inputs.date || format(now(), 'yyyy-MM-dd') }}
-        run: python3 sportbit_client.py --date $CHECK_DATE --save-to-drive
+          INPUT_DATE: ${{ github.event.inputs.date }}
+        run: |
+          if [ -z "$INPUT_DATE" ]; then
+            CHECK_DATE=$(date -u +%Y-%m-%d)
+          else
+            CHECK_DATE="$INPUT_DATE"
+          fi
+          python3 sportbit_client.py --date "$CHECK_DATE" --save-to-drive
