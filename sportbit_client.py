@@ -12,12 +12,6 @@ import requests
 from urllib.parse import urljoin
 from datetime import datetime, timedelta
 
-try:
-    from google_drive_uploader import GoogleDriveUploader
-    DRIVE_AVAILABLE = True
-except ImportError:
-    DRIVE_AVAILABLE = False
-
 
 class SportBitClient:
     """Client for SportBit API with session and XSRF token management."""
@@ -123,9 +117,9 @@ def main():
         help="Specific event ID to fetch details for",
     )
     parser.add_argument(
-        "--save-to-drive",
-        action="store_true",
-        help="Save workout JSONs to Google Drive (requires --date and GOOGLE_DRIVE_FOLDER_ID env var)",
+        "--save",
+        type=str,
+        help="Save workout JSONs to a directory (e.g., ./workouts)",
     )
     args = parser.parse_args()
 
@@ -159,12 +153,6 @@ def main():
             print(json.dumps(event_details, indent=2, ensure_ascii=False))
 
         elif args.date:
-            if args.save_to_drive and not DRIVE_AVAILABLE:
-                print(
-                    "Error: Google Drive dependencies not installed. Run: pip install -r requirements.txt",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
 
             target_date = datetime.strptime(args.date, "%Y-%m-%d").date()
             date_str = target_date.strftime("%Y-%m-%d")
@@ -233,36 +221,26 @@ def main():
             else:
                 print(json.dumps(event_details, indent=2, ensure_ascii=False))
 
-            if args.save_to_drive:
-                folder_id = os.getenv("GOOGLE_DRIVE_FOLDER_ID")
-                if not folder_id:
-                    print(
-                        "Error: GOOGLE_DRIVE_FOLDER_ID environment variable not set",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
+            if args.save:
+                print(f"\nSaving workouts to {args.save}...", file=sys.stderr)
 
-                print("\nSaving workouts to Google Drive...", file=sys.stderr)
+                os.makedirs(args.save, exist_ok=True)
 
-                try:
-                    uploader = GoogleDriveUploader(folder_id)
+                event_date = target_date.strftime("%Y-%m-%d")
+                filename = f"{event_date}-{event_id}.json"
+                filepath = os.path.join(args.save, filename)
 
-                    event_date = target_date.strftime("%Y-%m-%d")
-                    filename = f"{event_date}-{event_id}.json"
-
-                    if uploader.file_exists(filename):
-                        print(f"File already exists, skipping: {filename}", file=sys.stderr)
-                    else:
+                if os.path.exists(filepath):
+                    print(f"File already exists, skipping: {filename}", file=sys.stderr)
+                else:
+                    try:
                         workouts = event_details.get("workouts", [])
-                        file_id = uploader.upload_workout_json(filename, workouts)
-                        print(
-                            f"Successfully uploaded: {filename} (ID: {file_id})",
-                            file=sys.stderr,
-                        )
-
-                except ValueError as e:
-                    print(f"Error saving to Drive: {e}", file=sys.stderr)
-                    sys.exit(1)
+                        with open(filepath, "w", encoding="utf-8") as f:
+                            json.dump(workouts, f, indent=2, ensure_ascii=False)
+                        print(f"Successfully saved: {filename}", file=sys.stderr)
+                    except Exception as e:
+                        print(f"Error saving file: {e}", file=sys.stderr)
+                        sys.exit(1)
 
         else:
             print("Fetching schedule (rooster)...", file=sys.stderr)

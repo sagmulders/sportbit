@@ -26,11 +26,10 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Check signed-up events and save to Google Drive
+      - name: Check signed-up events and save workouts
         env:
           SPORTBIT_USER: ${{ secrets.SPORTBIT_USER }}
           SPORTBIT_PASS: ${{ secrets.SPORTBIT_PASS }}
-          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
           INPUT_DATE: ${{ github.event.inputs.date }}
         run: |
           if [ -z "$INPUT_DATE" ]; then
@@ -38,4 +37,12 @@ jobs:
           else
             CHECK_DATE="$INPUT_DATE"
           fi
-          python3 sportbit_client.py --date "$CHECK_DATE" --save-to-drive
+          python3 sportbit_client.py --date "$CHECK_DATE" --save ./workouts
+
+      - name: Commit and push workouts
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add workouts/
+          git commit -m "Add workouts for $(date -u +%Y-%m-%d)" || true
+          git push

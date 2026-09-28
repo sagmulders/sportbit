@@ -40,8 +40,3 @@ venv.bak/
 .env.local
 
 *.csv
-
-# Google Drive credentials (if storing locally)
-*service-account*.json
-*credentials*.json
-*drive*.key
