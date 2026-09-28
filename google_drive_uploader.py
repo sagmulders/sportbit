@@ -19,7 +19,7 @@ class GoogleDriveUploader:
             folder_id: Google Drive folder ID (from URL: https://drive.google.com/drive/folders/{ID})
         """
         self.folder_id = folder_id
-        self.service = build("drive", "v3", static_discovery=False)
+        self.service = build("drive", "v3")
 
     def file_exists(self, filename):
         """
