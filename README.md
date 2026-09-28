@@ -10,8 +10,19 @@ A simple Python CLI client for the SportBit API. Read-only access to view schedu
 
 ### Installation
 
+**Core dependencies:**
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+**Or install individually:**
 ```bash
 python3 -m pip install requests
+```
+
+**For Google Drive integration (optional):**
+```bash
+python3 -m pip install google-auth google-auth-httplib2 google-api-python-client
 ```
 
 ### Authentication
@@ -42,11 +53,19 @@ python3 sportbit_client.py --event-id 84745
 ```
 Displays full event details including workout breakdowns, trainer info, capacity, and location.
 
+### Save workouts to Google Drive
+```bash
+export GOOGLE_DRIVE_FOLDER_ID="1UENNk..."  # Folder ID from your shared Drive folder URL
+python3 sportbit_client.py --date 2026-09-22 --save-to-drive
+```
+Fetches signed-up events for the date and saves the workout JSONs to Google Drive. Files are named `YYYY-MM-DD-{EventID}.json` and contain only the workouts array. Files are not overwritten if they already exist.
+
 ## Features
 
 - **Schedule**: View all available classes organized by time of day
 - **Event Search**: Find events you've signed up for by date
 - **Workout Details**: See complete workout descriptions with exercises, scaling options, and strategy notes
+- **Google Drive Sync** (optional): Automatically save workout JSONs to a shared Google Drive folder
 - **Read-Only**: No modifications to your account or registrations
 
 ## API Endpoints Used
