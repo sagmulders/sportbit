@@ -3,7 +3,7 @@ name: Check Daily Signed-Up Events
 on:
   schedule:
     # Run daily at 20:00 UTC (22:00 CEST in summer / 21:00 CET in winter - Amsterdam time)
-    - cron: '0 20 * * *'
+    - cron: '0 20 * * *'  # 22:00 Amsterdam time
   workflow_dispatch:
     inputs:
       date:
