@@ -36,7 +36,7 @@ jobs:
           INPUT_DATE: ${{ github.event.inputs.date }}
         run: |
           if [ -z "$INPUT_DATE" ]; then
-            CHECK_DATE=$(date -u +%Y-%m-%d)
+            CHECK_DATE=$(date -u -d "1 day ago" +%Y-%m-%d)
           else
             CHECK_DATE="$INPUT_DATE"
           fi
